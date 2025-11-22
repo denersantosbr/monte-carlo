@@ -98,9 +98,10 @@ const App: React.FC = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
-        <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <header className="mb-8 flex flex-col justify-between gap-4">
             <div>
-                <p className="text-slate-400 mt-1 text-sm uppercase tracking-widest font-semibold">Simulador de Variância Monte Carlo</p>
+                <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 tracking-tight">Automação Quant - Mentoria Dener Santos</h1>
+                <p className="text-slate-400 mt-2 text-sm uppercase tracking-widest font-semibold">Simulador de Variância Monte Carlo</p>
             </div>
         </header>
 
