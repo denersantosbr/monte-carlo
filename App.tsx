@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Settings2, Target, BarChart3, RefreshCw, Percent, ZoomOut } from 'lucide-react';
+import { Play, Settings2, Target, BarChart3, RefreshCw, Percent, ZoomOut, Instagram, Send } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceArea } from 'recharts';
 
 import { SimulationParams, SimulationResult } from './types';
@@ -98,10 +98,31 @@ const App: React.FC = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
-        <header className="mb-8 flex flex-col justify-between gap-4">
+        <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
                 <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 tracking-tight">Automação Quant - Mentoria Dener Santos</h1>
                 <p className="text-slate-400 mt-2 text-sm uppercase tracking-widest font-semibold">Simulador de Variância Monte Carlo</p>
+            </div>
+
+            <div className="flex items-center gap-3">
+                <a 
+                    href="https://www.instagram.com/denersantosbr/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-400 hover:text-pink-500 transition-all duration-300 hover:scale-105 backdrop-blur-sm shadow-lg group"
+                    title="Instagram"
+                >
+                    <Instagram size={24} />
+                </a>
+                <a 
+                    href="https://t.me/ODenerSantos" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-400 hover:text-sky-400 transition-all duration-300 hover:scale-105 backdrop-blur-sm shadow-lg group"
+                    title="Telegram"
+                >
+                    <Send size={24} className="-ml-0.5 mt-0.5 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
+                </a>
             </div>
         </header>
 
