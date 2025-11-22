@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Settings2, Target, BarChart3, RefreshCw, Percent } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Play, Settings2, Target, BarChart3, RefreshCw, Percent, ZoomOut } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceArea } from 'recharts';
 
 import { SimulationParams, SimulationResult } from './types';
 import { runSimulation, calculateRequiredWinRate } from './utils/simulation';
@@ -18,6 +18,12 @@ const App: React.FC = () => {
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Zoom State
+  const [left, setLeft] = useState<string | number>('dataMin');
+  const [right, setRight] = useState<string | number>('dataMax');
+  const [refAreaLeft, setRefAreaLeft] = useState<string | number>('');
+  const [refAreaRight, setRefAreaRight] = useState<string | number>('');
+
   // --- Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,12 +35,46 @@ const App: React.FC = () => {
 
   const handleSimulate = () => {
     setIsAnimating(true);
+    // Reset zoom on new simulation
+    setLeft('dataMin');
+    setRight('dataMax');
+    setRefAreaLeft('');
+    setRefAreaRight('');
+
     // Tiny timeout to allow UI to show loading state
     setTimeout(() => {
       const simResult = runSimulation(params);
       setResult(simResult);
       setIsAnimating(false);
     }, 100);
+  };
+
+  // Zoom Logic
+  const zoom = () => {
+    if (refAreaLeft === refAreaRight || refAreaRight === '') {
+      setRefAreaLeft('');
+      setRefAreaRight('');
+      return;
+    }
+
+    // Ensure left is smaller than right
+    let l = refAreaLeft;
+    let r = refAreaRight;
+    if (typeof l === 'number' && typeof r === 'number' && l > r) {
+      [l, r] = [r, l];
+    }
+
+    setRefAreaLeft('');
+    setRefAreaRight('');
+    setLeft(l);
+    setRight(r);
+  };
+
+  const zoomOut = () => {
+    setLeft('dataMin');
+    setRight('dataMax');
+    setRefAreaLeft('');
+    setRefAreaRight('');
   };
 
   // Initial run
@@ -135,10 +175,28 @@ const App: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Chart Section */}
-                <div className="lg:col-span-2">
-                    <GlassCard className="h-[500px] flex flex-col" title="Crescimento da Banca (Lucro %)">
+                <div className="lg:col-span-2 relative">
+                    <GlassCard className="h-[500px] flex flex-col relative" title="Crescimento da Banca (Lucro %)">
+                        
+                        {/* Reset Zoom Button */}
+                        {left !== 'dataMin' && (
+                            <button 
+                                onClick={zoomOut}
+                                className="absolute top-4 right-6 z-20 px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-xs font-medium text-white backdrop-blur-md transition-all flex items-center gap-2 shadow-lg"
+                            >
+                                <ZoomOut size={14} />
+                                Resetar Zoom
+                            </button>
+                        )}
+
                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={result.history} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                            <LineChart 
+                                data={result.history} 
+                                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                onMouseDown={(e) => e && e.activeLabel && setRefAreaLeft(e.activeLabel)}
+                                onMouseMove={(e) => refAreaLeft && e && e.activeLabel && setRefAreaRight(e.activeLabel)}
+                                onMouseUp={zoom}
+                            >
                                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                                 <XAxis 
                                     dataKey="betNumber" 
@@ -146,6 +204,9 @@ const App: React.FC = () => {
                                     fontSize={12} 
                                     tickFormatter={(val) => `${val}`} 
                                     label={{ value: 'Número de Apostas', position: 'insideBottomRight', offset: -5, fill: '#64748b', fontSize: 10 }}
+                                    allowDataOverflow
+                                    domain={[left, right]}
+                                    type="number"
                                 />
                                 <YAxis 
                                     stroke="#64748b" 
@@ -168,6 +229,7 @@ const App: React.FC = () => {
                                     dot={false} 
                                     activeDot={{ r: 6, fill: '#60a5fa' }}
                                     animationDuration={1500}
+                                    isAnimationActive={left === 'dataMin'} // Disable animation on zoom
                                 />
                                 <Line 
                                     name="Stake 2%" 
@@ -178,6 +240,7 @@ const App: React.FC = () => {
                                     dot={false} 
                                     activeDot={{ r: 6, fill: '#fbbf24' }}
                                     animationDuration={1500}
+                                    isAnimationActive={left === 'dataMin'}
                                 />
                                 <Line 
                                     name="Stake 5%" 
@@ -188,7 +251,19 @@ const App: React.FC = () => {
                                     dot={false} 
                                     activeDot={{ r: 6, fill: '#f43f5e' }}
                                     animationDuration={1500}
+                                    isAnimationActive={left === 'dataMin'}
                                 />
+                                
+                                {refAreaLeft && refAreaRight ? (
+                                    <ReferenceArea 
+                                        x1={refAreaLeft} 
+                                        x2={refAreaRight} 
+                                        strokeOpacity={0.3} 
+                                        fill="#818cf8" 
+                                        fillOpacity={0.1} 
+                                    />
+                                ) : null}
+
                             </LineChart>
                         </ResponsiveContainer>
                     </GlassCard>
