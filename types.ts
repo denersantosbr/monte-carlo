@@ -1,31 +1,33 @@
+
 export interface SimulationParams {
   avgOdds: number;
-  expectedRoi: number;
+  expectedRoi: number; // Agora rotulado apenas como ROI (%)
+  stakePct: number;    // Novo campo para gestão dinâmica
   numBets: number;
+  isCompound: boolean; // Tipo de Gestão: False = Fixa, True = Composta
 }
 
 export interface BetResult {
   id: number;
   won: boolean;
-  profitUnit: number; // Profit in units (e.g., 0.7 for a win at 1.70, -1 for loss)
+  profitUnit: number;
 }
 
 export interface SimulationStep {
   betNumber: number;
-  bankroll1: number; // 1% stake path
-  bankroll2: number; // 2% stake path
-  bankroll5: number; // 5% stake path
+  bankroll: number; // Apenas uma linha de evolução da banca
 }
 
 export interface GlobalStats {
   finalResultUnits: number;
   realizedRoi: number;
   realizedWinRate: number;
-  maxDrawdown: number; // In units
+  maxDrawdown: number; // Em unidades
   maxGreenStreak: number;
   maxRedStreak: number;
   finalBankroll: number;
   totalWagered: number;
+  riskOfRuin: number; // Probabilidade entre 0 e 1 (ou 0 a 100%)
 }
 
 export interface BlockStats {
@@ -40,9 +42,7 @@ export interface BlockStats {
 
 export interface SimulationResult {
   history: SimulationStep[];
-  stats1: GlobalStats;
-  stats2: GlobalStats;
-  stats5: GlobalStats;
-  blocks: BlockStats[]; // Based on 1% stake as the primary view
+  stats: GlobalStats; // Estatística única para a stake escolhida
+  blocks: BlockStats[];
   requiredWinRate: number;
 }
